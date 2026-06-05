@@ -46,7 +46,7 @@ MiMo-Nexus 是一个轻量级的 MCP（Model Context Protocol）智能网关，�
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/mimo-nexus-mcp.git
+git clone https://github.com/t0ri333/mimo-nexus-mcp.git
 cd mimo-nexus-mcp
 
 # 安装依赖

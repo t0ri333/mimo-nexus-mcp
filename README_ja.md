@@ -46,7 +46,7 @@ MiMo-Nexus は、AI コーディングアシスタント（Claude Code、Cursor 
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/mimo-nexus-mcp.git
+git clone https://github.com/t0ri333/mimo-nexus-mcp.git
 cd mimo-nexus-mcp
 
 # 依存関係をインストール
