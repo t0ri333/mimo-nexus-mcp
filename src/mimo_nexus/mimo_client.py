@@ -1,8 +1,8 @@
 """MiMo Cloud Gateway - Async API client for Xiaomi MiMo models.
 
-Supports two API formats:
-- OpenAI-compatible: for mimo-v2.5-pro, mimo-v2.5
-- Gemini format: for mimo-v2.5-omni (thinking model)
+API format overview:
+- OpenAI-compatible (https://api.xiaomimimo.com/v1): chat completions, TTS
+- Gemini format (https://api.xiaomimimo.com/v1beta/models): thinking model
 """
 
 import httpx
@@ -126,7 +126,7 @@ class MiMoClient:
         text: str,
         voice_style: str = "professional_engineer",
     ) -> bytes:
-        """Generate speech audio using MiMo TTS API.
+        """Generate speech audio using MiMo TTS API (OpenAI-compatible endpoint).
 
         Args:
             text: Text to synthesize
@@ -144,20 +144,26 @@ class MiMoClient:
 
         voice_description = style_prompts.get(voice_style, style_prompts["professional_engineer"])
 
-        payload = {
-            "model": "mimo-v2.5-tts-voicedesign",
-            "input": text,
-            "voice": voice_description,
-            "response_format": "mp3",
-        }
-
-        resp = await self._httpx.post(
-            "/audio/speech",
-            json=payload,
-            headers={"Authorization": f"Bearer {self.config.api_key}"},
-        )
-        resp.raise_for_status()
-        return resp.content
+        # TTS uses OpenAI-compatible endpoint at /v1/audio/speech
+        async with httpx.AsyncClient(
+            base_url=self.config.openai_base_url,
+            headers={
+                "Authorization": f"Bearer {self.config.api_key}",
+                "Content-Type": "application/json",
+            },
+            timeout=httpx.Timeout(120.0, connect=10.0),
+        ) as client:
+            resp = await client.post(
+                "/audio/speech",
+                json={
+                    "model": "mimo-v2.5-tts-voicedesign",
+                    "input": text,
+                    "voice": voice_description,
+                    "response_format": "mp3",
+                },
+            )
+            resp.raise_for_status()
+            return resp.content
 
     async def close(self) -> None:
         """Clean up HTTP clients."""
